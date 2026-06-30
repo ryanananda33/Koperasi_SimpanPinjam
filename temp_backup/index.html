@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Koperasi Simpan Pinjam Guru</title>
+    
+    <!-- CSS Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- App Container -->
+    <div id="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="d-none">
+            <div class="brand">
+                <i class="fas fa-graduation-cap brand-logo"></i>
+                <span class="brand-name">KOP-GURU</span>
+            </div>
+            
+            <ul class="menu-list">
+                <!-- ADMIN MENU OPTIONS -->
+                <li class="menu-item admin-only d-none">
+                    <a href="#" class="menu-link active" data-route="admin-dashboard" onclick="navigateTo('admin-dashboard'); return false;">
+                        <i class="fas fa-chart-line"></i> Dashboard Admin
+                    </a>
+                </li>
+                <li class="menu-item admin-only d-none">
+                    <a href="#" class="menu-link" data-route="data-anggota" onclick="navigateTo('data-anggota'); return false;">
+                        <i class="fas fa-users"></i> Data Anggota
+                    </a>
+                </li>
+                <li class="menu-item admin-only d-none">
+                    <a href="#" class="menu-link" data-route="simpanan" onclick="navigateTo('simpanan'); return false;">
+                        <i class="fas fa-piggy-bank"></i> Kelola Simpanan
+                    </a>
+                </li>
+                <li class="menu-item admin-only d-none">
+                    <a href="#" class="menu-link" data-route="pinjaman" onclick="navigateTo('pinjaman'); return false;">
+                        <i class="fas fa-hand-holding-usd"></i> Kelola Pinjaman
+                    </a>
+                </li>
+                <li class="menu-item admin-only d-none">
+                    <a href="#" class="menu-link" data-route="laporan" onclick="navigateTo('laporan'); return false;">
+                        <i class="fas fa-file-invoice"></i> Cetak Laporan
+                    </a>
+                </li>
+
+                <!-- ANGGOTA/MEMBER MENU OPTIONS -->
+                <li class="menu-item anggota-only d-none">
+                    <a href="#" class="menu-link" data-route="anggota-dashboard" onclick="navigateTo('anggota-dashboard'); return false;">
+                        <i class="fas fa-home"></i> Dashboard Saya
+                    </a>
+                </li>
+                <li class="menu-item anggota-only d-none">
+                    <a href="#" class="menu-link" data-route="anggota-simpanan" onclick="navigateTo('anggota-simpanan'); return false;">
+                        <i class="fas fa-wallet"></i> Simpanan Saya
+                    </a>
+                </li>
+                <li class="menu-item anggota-only d-none">
+                    <a href="#" class="menu-link" data-route="anggota-pinjaman" onclick="navigateTo('anggota-pinjaman'); return false;">
+                        <i class="fas fa-receipt"></i> Pinjaman Saya
+                    </a>
+                </li>
+                <li class="menu-item anggota-only d-none">
+                    <a href="#" class="menu-link" data-route="pengajuan-pinjaman" onclick="navigateTo('pengajuan-pinjaman'); return false;">
+                        <i class="fas fa-file-contract"></i> Ajukan Pinjaman
+                    </a>
+                </li>
+
+                <hr style="border-color: rgba(255,255,255,0.15);">
+                
+                <!-- SHARED SYSTEM MENU OPTIONS -->
+                <li class="menu-item">
+                    <a href="#" class="menu-link" data-route="profil" onclick="navigateTo('profil'); return false;">
+                        <i class="fas fa-user-circle"></i> Profil Saya
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link text-danger" onclick="handleLogout(); return false;">
+                        <i class="fas fa-sign-out-alt text-danger"></i> Keluar (Logout)
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <span>Versi 1.0.0 &copy; 2026</span>
+            </div>
+        </aside>
+
+        <!-- Sidebar overlay for mobile drawers -->
+        <div id="sidebar-overlay"></div>
+
+        <!-- Main Wrapper -->
+        <main id="main-content" style="margin-left: 0;">
+            
+            <!-- Top Sticky Navbar Header -->
+            <header id="top-navbar" class="d-none">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="toggle-sidebar-btn" id="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="no-print">
+                        <ul class="custom-breadcrumb mb-0" id="navbar-breadcrumb">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="nav-right">
+                    <!-- Interactive Demo Role Switcher Badge -->
+                    <div class="role-switcher-badge" onclick="switchRoleDemo();" title="Beralih peran secara instan untuk pengujian">
+                        <i class="fas fa-random"></i>
+                        <span id="nav-role-badge-text">Peran</span>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown">
+                        <div class="nav-profile" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100&auto=format&fit=crop" alt="Foto Profil" id="nav-profile-image">
+                            <div class="profile-info">
+                                <div class="profile-name" id="nav-profile-name">User Name</div>
+                                <div class="profile-role" id="nav-profile-role">Role</div>
+                            </div>
+                            <i class="fas fa-chevron-down ms-1 text-muted fs-8"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
+                            <li><a class="dropdown-item py-2" href="#" onclick="navigateTo('profil'); return false;"><i class="fas fa-user-circle me-2 text-muted"></i> Profil Saya</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="#" onclick="handleLogout(); return false;"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body Content Area -->
+            <div class="page-body">
+                
+                <!-- ================= SCREEN 1: LOGIN ================= -->
+                <section id="section-login" class="content-section">
+                    <div id="login-page">
+                        <div class="login-card">
+                            <div class="login-logo">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h4 class="fw-bold mb-1">Koperasi Guru</h4>
+                            <p class="text-muted fs-7 mb-4">Sistem Informasi Simpan Pinjam Sekolah</p>
+                            
+                            <form id="login-form">
+                                <div class="mb-3 text-start">
+                                    <label class="form-label" for="login-email">Alamat Email</label>
+                                    <input type="email" class="form-control" id="login-email" placeholder="nama@sekolah.sch.id" required>
+                                </div>
+                                <div class="mb-4 text-start">
+                                    <label class="form-label" for="login-password">Password</label>
+                                    <input type="password" class="form-control" id="login-password" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-2.5 mb-3">Masuk Ke Sistem</button>
+                            </form>
+                            
+                            <div class="text-center pt-2">
+                                <p class="text-muted fs-8 mb-2">Gunakan akun demo instan di bawah untuk menguji:</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="quick-login-btn" onclick="handleQuickLogin('admin')">
+                                        <i class="fas fa-user-shield me-1"></i> Admin
+                                    </button>
+                                    <button class="quick-login-btn" onclick="handleQuickLogin('anggota')">
+                                        <i class="fas fa-chalkboard-teacher me-1"></i> Anggota Guru
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 2: ADMIN DASHBOARD ================= -->
+                <section id="section-admin-dashboard" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Dashboard Ringkasan Koperasi</h4>
+                            <p class="text-muted mb-0">Statistik perkembangan dan data terkini koperasi guru sekolah.</p>
+                        </div>
+                        <div class="no-print">
+                            <button class="btn btn-primary" onclick="navigateTo('simpanan')">
+                                <i class="fas fa-plus me-1"></i> Catat Simpanan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards Grid -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Jumlah Anggota</h6>
+                                    <h3 id="admin-stat-members">0</h3>
+                                </div>
+                                <div class="card-icon stats-icon-blue">
+                                    <i class="fas fa-users-cog"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Total Simpanan</h6>
+                                    <h3 id="admin-stat-savings">Rp 0</h3>
+                                </div>
+                                <div class="card-icon stats-icon-green">
+                                    <i class="fas fa-piggy-bank"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Total Pinjaman</h6>
+                                    <h3 id="admin-stat-loans">Rp 0</h3>
+                                </div>
+                                <div class="card-icon stats-icon-cyan">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Pinjaman Aktif / Lunas</h6>
+                                    <h3><span id="admin-stat-loans-active">0</span> / <span id="admin-stat-loans-paid">0</span></h3>
+                                </div>
+                                <div class="card-icon stats-icon-orange">
+                                    <i class="fas fa-check-double"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Charts and Recent Activities -->
+                    <div class="row g-4">
+                        <!-- Chart Card -->
+                        <div class="col-12 col-lg-8">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Grafik Perkembangan Keuangan (2026)</h5>
+                                    <span class="text-muted fs-7">Perbandingan penambahan simpanan dan penyaluran pinjaman</span>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <div style="height: 320px; position: relative;">
+                                        <canvas id="savingsLoansChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Recent Applications -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Pengajuan Pinjaman Baru</h5>
+                                    <span class="text-muted fs-7">Menunggu persetujuan atau proses admin</span>
+                                </div>
+                                <div class="card-body px-4">
+                                    <div class="table-responsive border-0">
+                                        <table class="table table-hover align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Guru</th>
+                                                    <th>Nominal</th>
+                                                    <th>Durasi</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="admin-dashboard-recent-requests">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 3: ANGGOTA DASHBOARD ================= -->
+                <section id="section-anggota-dashboard" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Dashboard Guru / Anggota</h4>
+                            <p class="text-muted mb-0">Pantau simpanan, cicilan berjalan, dan status pengajuan pinjaman Anda.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="navigateTo('pengajuan-pinjaman')">
+                                <i class="fas fa-file-invoice-dollar me-1"></i> Ajukan Pinjaman Baru
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Member Stats Grid -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-12 col-md-4">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Total Simpanan Saya</h6>
+                                    <h3 id="member-stat-savings">Rp 0</h3>
+                                </div>
+                                <div class="card-icon stats-icon-blue">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Pinjaman Aktif Saya</h6>
+                                    <h3 id="member-stat-loan-active">Rp 0</h3>
+                                </div>
+                                <div class="card-icon stats-icon-cyan">
+                                    <i class="fas fa-file-signature"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Sisa Tenor / Status</h6>
+                                    <h3><span id="member-stat-loan-remaining">-</span> <span id="member-stat-loan-status" class="ms-1"></span></h3>
+                                </div>
+                                <div class="card-icon stats-icon-orange">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Left Panel: Breakdown Savings -->
+                        <div class="col-12 col-md-5">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Rincian Simpanan Saya</h5>
+                                    <p class="text-muted fs-7 mb-0">Rincian akumulatif berdasarkan kategori simpanan</p>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold">Simpanan Pokok</h6>
+                                                <small class="text-muted">Dibayar sekali di awal pendaftaran</small>
+                                            </div>
+                                            <span class="fw-bold text-dark" id="member-breakdown-pokok">Rp 0</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold">Simpanan Wajib</h6>
+                                                <small class="text-muted">Iuran rutin bulanan guru</small>
+                                            </div>
+                                            <span class="fw-bold text-dark" id="member-breakdown-wajib">Rp 0</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold">Simpanan Sukarela</h6>
+                                                <small class="text-muted">Tabungan sukarela tambahan</small>
+                                            </div>
+                                            <span class="fw-bold text-dark" id="member-breakdown-sukarela">Rp 0</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Recent Transactions -->
+                        <div class="col-12 col-md-7">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Riwayat Mutasi Terkini</h5>
+                                    <p class="text-muted fs-7 mb-0">5 aktivitas terakhir transaksi simpanan & pinjaman</p>
+                                </div>
+                                <div class="card-body px-4 pb-4">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Jenis Transaksi</th>
+                                                    <th>Nominal</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="member-dashboard-recent">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 4: DATA ANGGOTA (CRUD) ================= -->
+                <section id="section-data-anggota" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Kelola Data Anggota Guru</h4>
+                            <p class="text-muted mb-0">Kelola informasi pendaftaran guru, status keaktifan, dan kredensial login.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="openAddAnggotaModal()">
+                                <i class="fas fa-user-plus me-1"></i> Tambah Anggota
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter Panel -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4">
+                        <div class="card-body p-3">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 col-lg-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="anggota-search" placeholder="Cari nama guru, NIP, atau email...">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <select class="form-select" id="anggota-filter-status">
+                                        <option value="all">Semua Status Keanggotaan</option>
+                                        <option value="aktif">Aktif</option>
+                                        <option value="nonaktif">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="table-responsive shadow-sm">
+                        <table class="table align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th>NIP</th>
+                                    <th>Nama / Email</th>
+                                    <th>No HP</th>
+                                    <th>Alamat</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anggota-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 5: DETAIL ANGGOTA ================= -->
+                <section id="section-detail-anggota" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Rincian Buku Anggota</h4>
+                            <p class="text-muted mb-0">Buku tabungan, data pinjaman, dan biodata profil lengkap anggota guru.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="navigateTo('data-anggota')">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Profile Card -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-body text-center p-4">
+                                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" alt="Foto Profil" class="rounded-circle border border-3 border-primary-subtle mb-3" style="width: 90px; height: 90px; object-fit: cover;">
+                                    <h5 class="fw-bold mb-1" id="detail-ang-name">-</h5>
+                                    <p class="text-muted fs-7 mb-2" id="detail-ang-email">-</p>
+                                    <div id="detail-ang-status" class="mb-3"></div>
+                                    <hr>
+                                    <ul class="text-start list-unstyled fs-8 text-dark mb-0">
+                                        <li class="mb-2"><strong>NIP:</strong> <span class="float-end text-muted" id="detail-ang-nip">-</span></li>
+                                        <li class="mb-2"><strong>No HP:</strong> <span class="float-end text-muted" id="detail-ang-phone">-</span></li>
+                                        <li><strong>Alamat:</strong> <div class="text-muted mt-1" id="detail-ang-address">-</div></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Financial Ledger Totals -->
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-3 text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.75rem;">Saldo Tabungan Guru</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fs-7 text-muted">Simpanan Pokok:</span>
+                                        <span class="fw-bold" id="detail-ang-pokok">Rp 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fs-7 text-muted">Simpanan Wajib:</span>
+                                        <span class="fw-bold" id="detail-ang-wajib">Rp 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="fs-7 text-muted">Simpanan Sukarela:</span>
+                                        <span class="fw-bold" id="detail-ang-sukarela">Rp 0</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-dark">Total Saldo:</span>
+                                        <span class="fw-bold text-primary fs-5" id="detail-ang-total-simpanan">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ledgers Details -->
+                        <div class="col-12 col-lg-8">
+                            <!-- Savings Ledger -->
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Buku Tabungan / Mutasi Simpanan</h5>
+                                    <p class="text-muted fs-7 mb-0">Seluruh setoran tabungan pokok, wajib, dan sukarela.</p>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Tipe</th>
+                                                    <th>Nominal</th>
+                                                    <th>Keterangan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detail-ang-simpanan-table">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loans Ledger -->
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Buku Kredit / Riwayat Pinjaman</h5>
+                                    <p class="text-muted fs-7 mb-0">Seluruh pengajuan kredit pinjaman beserta status cicilannya.</p>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Nominal</th>
+                                                    <th>Bunga</th>
+                                                    <th>Tenor</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detail-ang-pinjaman-table">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 6: KELOLA SIMPANAN ================= -->
+                <section id="section-simpanan" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Kelola Simpanan Guru</h4>
+                            <p class="text-muted mb-0">Pencatatan mutasi saldo pokok, iuran wajib bulanan, dan tabungan sukarela guru.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="openAddSimpananModal()">
+                                <i class="fas fa-plus me-1"></i> Catat Transaksi Baru
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Filter -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4">
+                        <div class="card-body p-3">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="simpanan-search" placeholder="Cari berdasarkan nama anggota atau NIP...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Savings Table Summary per Member -->
+                    <div class="table-responsive shadow-sm">
+                        <table class="table align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th>NIP</th>
+                                    <th>Nama Guru</th>
+                                    <th>Simp. Pokok</th>
+                                    <th>Simp. Wajib</th>
+                                    <th>Simp. Sukarela</th>
+                                    <th>Total Saldo</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="simpanan-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 7: DETAIL SIMPANAN ================= -->
+                <section id="section-detail-simpanan" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Rincian Buku Tabungan</h4>
+                            <p class="text-muted mb-0">Rincian terperinci atas transaksi dan penarikan simpanan anggota.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="navigateTo('simpanan')">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Rekap
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Profile/Summary Card -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-body p-4 text-center">
+                                    <div class="card-icon stats-icon-blue mx-auto mb-3" style="width: 60px; height: 60px; border-radius: 50%;">
+                                        <i class="fas fa-wallet fs-4"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-1" id="detail-simp-name">-</h5>
+                                    <p class="text-muted fs-8 mb-2" id="detail-simp-email">-</p>
+                                    <span class="badge bg-light text-dark mb-3">NIP: <span id="detail-simp-nip">-</span></span>
+                                    <hr>
+                                    <div class="text-start fs-8">
+                                        <div class="d-flex justify-content-between mb-2"><span>Simpanan Pokok:</span><strong id="detail-simp-pokok">Rp 0</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Simpanan Wajib:</span><strong id="detail-simp-wajib">Rp 0</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Simpanan Sukarela:</span><strong id="detail-simp-sukarela">Rp 0</strong></div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between"><strong class="text-dark">Total Saldo:</strong><strong class="text-primary fs-6" id="detail-simp-total">Rp 0</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ledgers List -->
+                        <div class="col-12 col-lg-8">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Log Transaksi Buku Tabungan</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Kategori</th>
+                                                    <th>Nominal</th>
+                                                    <th>Keterangan</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detail-simpanan-table-body">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 8: KELOLA PINJAMAN ================= -->
+                <section id="section-pinjaman" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Kelola Pengajuan Pinjaman</h4>
+                            <p class="text-muted mb-0">Tinjau, setujui, tolak, dan kelola amortisasi pinjaman guru sekolah.</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Filters -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4">
+                        <div class="card-body p-3">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6 col-lg-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="pinjaman-search" placeholder="Cari nama guru atau NIP pengaju...">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <select class="form-select" id="pinjaman-filter-status">
+                                        <option value="all">Semua Status Pinjaman</option>
+                                        <option value="menunggu">Menunggu Persetujuan</option>
+                                        <option value="berjalan">Berjalan (Aktif)</option>
+                                        <option value="lunas">Lunas</option>
+                                        <option value="ditolak">Ditolak</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loans Table -->
+                    <div class="table-responsive shadow-sm">
+                        <table class="table align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nama Guru</th>
+                                    <th>Nominal</th>
+                                    <th>Tenor</th>
+                                    <th>Bunga</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pinjaman-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 9: DETAIL PINJAMAN ================= -->
+                <section id="section-detail-pinjaman" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Detail Buku Kredit & Cicilan</h4>
+                            <p class="text-muted mb-0">Pantau detail pinjaman, status pembayaran cicilan bulanan, dan simulasikan pembayaran.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="navigateTo(currentUser.role === 'admin' ? 'pinjaman' : 'anggota-pinjaman')">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Summary / Details Card -->
+                        <div class="col-12 col-lg-5">
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="fw-bold mb-1" id="det-loan-name">-</h5>
+                                            <span class="text-muted fs-8">NIP: <span id="det-loan-nip">-</span></span>
+                                        </div>
+                                        <div id="det-loan-status"></div>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <div class="fs-8">
+                                        <div class="d-flex justify-content-between mb-2"><span>Plafon Pinjaman:</span><strong class="text-dark" id="det-loan-amount">Rp 0</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Bunga Bulanan:</span><strong class="text-dark" id="det-loan-interest">0%</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Tenor Pembayaran:</span><strong class="text-dark" id="det-loan-duration">0 Bulan</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Angsuran Bulanan:</span><strong class="text-primary fw-bold" id="det-loan-monthly">Rp 0</strong></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Tanggal Pengajuan:</span><span class="text-muted" id="det-loan-requested-date">-</span></div>
+                                        <div class="d-flex justify-content-between mb-2"><span>Tanggal Jatuh Tempo:</span><span class="text-muted" id="det-loan-due-date">-</span></div>
+                                        <div class="mb-2"><span>Alasan & Catatan:</span><div class="text-muted mt-1 bg-light p-2 rounded-2" id="det-loan-reason">-</div></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Installments calculations -->
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-3 text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.75rem;">Status Keuangan Pinjaman</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fs-7 text-muted">Total Cicilan Terbayar:</span>
+                                        <strong class="text-success" id="det-loan-paid">Rp 0</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="fs-7 text-muted">Sisa Tagihan Belum Bayar:</span>
+                                        <strong class="text-danger" id="det-loan-remaining">Rp 0</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Admin Actions simulation -->
+                            <div id="det-loan-action-wrapper"></div>
+                        </div>
+
+                        <!-- Installments Schedule table -->
+                        <div class="col-12 col-lg-7">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h5 class="fw-bold mb-0">Tabel Rencana Amortisasi & Cicilan</h5>
+                                    <p class="text-muted fs-7 mb-0">Rencana angsuran pokok ditambah bunga bulanan.</p>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Angsuran</th>
+                                                    <th>Pokok</th>
+                                                    <th>Bunga</th>
+                                                    <th>Total</th>
+                                                    <th>Tgl Bayar</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="det-loan-ledger-body">
+                                                <!-- Populated by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 10: FORM PENGAJUAN PINJAMAN (MEMBER) ================= -->
+                <section id="section-pengajuan-pinjaman" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Formulir Pengajuan Pinjaman</h4>
+                            <p class="text-muted mb-0">Isi nominal pinjaman dan tenor pembayaran. Pengajuan akan ditinjau oleh Administrator Koperasi.</p>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-3" style="max-width: 650px;">
+                        <div class="card-body p-4">
+                            <form id="form-pengajuan-pinjaman-el">
+                                <div class="mb-3">
+                                    <label class="form-label" for="pengajuan-amount">Jumlah Nominal Pinjaman (Rupiah)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control" id="pengajuan-amount" placeholder="Contoh: 5000000" min="1000000" step="500000" required>
+                                    </div>
+                                    <div class="form-text fs-8 text-muted">Minimal pengajuan Rp 1.000.000.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label" for="pengajuan-duration">Lama Angsuran (Tenor)</label>
+                                    <select class="form-select" id="pengajuan-duration" required>
+                                        <option value="" disabled selected>Pilih Tenor Pembayaran...</option>
+                                        <option value="3">3 Bulan</option>
+                                        <option value="6">6 Bulan</option>
+                                        <option value="12">12 Bulan</option>
+                                        <option value="18">18 Bulan</option>
+                                        <option value="24">24 Bulan</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label" for="pengajuan-reason">Alasan Mengajukan Pinjaman</label>
+                                    <textarea class="form-control" id="pengajuan-reason" rows="4" placeholder="Jelaskan kebutuhan mendesak Anda secara singkat..." required></textarea>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="navigateTo('anggota-dashboard')">Batal</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i> Kirim Pengajuan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 11: RIWAYAT SIMPANAN (MEMBER) ================= -->
+                <section id="section-anggota-simpanan" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Riwayat Simpanan Saya</h4>
+                            <p class="text-muted mb-0">Daftar mutasi setoran tabungan pokok, iuran wajib bulanan, dan simpanan sukarela.</p>
+                        </div>
+                    </div>
+
+                    <!-- Member Savings Summary Widgets -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Total Saldo Saya</h6>
+                                    <h3 id="ang-simp-total" class="text-primary">Rp 0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Simpanan Pokok</h6>
+                                    <h4 id="ang-simp-pokok" class="fw-bold mb-0 text-dark">Rp 0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Simpanan Wajib</h6>
+                                    <h4 id="ang-simp-wajib" class="fw-bold mb-0 text-dark">Rp 0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <div class="stats-card">
+                                <div class="card-data">
+                                    <h6>Simpanan Sukarela</h6>
+                                    <h4 id="ang-simp-sukarela" class="fw-bold mb-0 text-dark">Rp 0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive shadow-sm">
+                        <table class="table align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal Transaksi</th>
+                                    <th>Tipe Simpanan</th>
+                                    <th>Nominal</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anggota-simpanan-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 12: RIWAYAT PINJAMAN (MEMBER) ================= -->
+                <section id="section-anggota-pinjaman" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Riwayat Pengajuan Pinjaman</h4>
+                            <p class="text-muted mb-0">Daftar riwayat kredit dan pengajuan kredit pinjaman Anda.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="navigateTo('pengajuan-pinjaman')">
+                                <i class="fas fa-plus me-1"></i> Ajukan Baru
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loans Table -->
+                    <div class="table-responsive shadow-sm">
+                        <table class="table align-middle custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nominal Pinjaman</th>
+                                    <th>Bunga</th>
+                                    <th>Tenor</th>
+                                    <th>Sisa Tenor</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anggota-pinjaman-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 13: PROFIL USER ================= -->
+                <section id="section-profil" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold mb-0">Profil Pengguna</h4>
+                            <p class="text-muted mb-0">Informasi data diri personal Anda.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4" style="max-width: 850px;">
+                        <!-- Avatar / Summary Card -->
+                        <div class="col-12 col-md-4">
+                            <div class="card border-0 shadow-sm rounded-3 text-center p-4">
+                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100&auto=format&fit=crop" alt="Avatar" class="rounded-circle border border-3 border-primary-subtle mx-auto mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                                <h5 class="fw-bold mb-1" id="profile-name-title">-</h5>
+                                <p class="text-muted fs-8 mb-3" id="profile-role-title">-</p>
+                                <button class="btn btn-outline-primary w-100 btn-sm" data-bs-toggle="modal" data-bs-target="#edit-profile-modal">
+                                    <i class="fas fa-edit me-1"></i> Edit Profil
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Data Fields List -->
+                        <div class="col-12 col-md-8">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-4">Biodata Lengkap Guru</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-4 text-muted fs-7">Nama Lengkap:</div>
+                                        <div class="col-8 fw-semibold" id="prof-name">-</div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4 text-muted fs-7">NIP:</div>
+                                        <div class="col-8" id="prof-nip">-</div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4 text-muted fs-7">Alamat Email:</div>
+                                        <div class="col-8" id="prof-email">-</div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-4 text-muted fs-7">No Handphone:</div>
+                                        <div class="col-8" id="prof-phone">-</div>
+                                    </div>
+                                    <div class="row mb-0">
+                                        <div class="col-4 text-muted fs-7">Alamat Lengkap:</div>
+                                        <div class="col-8 text-muted" id="prof-address">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= SCREEN 14: LAPORAN SCREEN (ADMIN) ================= -->
+                <section id="section-laporan" class="content-section d-none">
+                    <!-- Filters and controls (Hidden in print) -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                        <div>
+                            <h4 class="fw-bold mb-0">Cetak Laporan Keuangan</h4>
+                            <p class="text-muted mb-0">Filter rentang tanggal transaksi, pilih tipe laporan, dan cetak dokumen laporan resmi.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="printReport()">
+                                <i class="fas fa-print me-1"></i> Cetak Laporan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Config Card (Hidden in print) -->
+                    <div class="card border-0 shadow-sm rounded-3 mb-4 no-print">
+                        <div class="card-body p-4">
+                            <form id="laporan-config-form" onsubmit="event.preventDefault(); generateReport();">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label" for="laporan-type">Jenis Laporan</label>
+                                        <select class="form-select" id="laporan-type" required>
+                                            <option value="simpanan" selected>Laporan Simpanan Guru</option>
+                                            <option value="pinjaman">Laporan Penyaluran Pinjaman</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <label class="form-label" for="laporan-date-start">Tanggal Mulai</label>
+                                        <input type="date" class="form-control" id="laporan-date-start" required>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <label class="form-label" for="laporan-date-end">Tanggal Selesai</label>
+                                        <input type="date" class="form-control" id="laporan-date-end" required>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Laporan Printable Document Area -->
+                    <div class="card border-0 shadow-sm rounded-3 p-4">
+                        <!-- Printed Document Header (Shown in Print only) -->
+                        <div class="print-header text-center">
+                            <h3 class="fw-bold mb-1">KOPERASI SIMPAN PINJAM GURU</h3>
+                            <h5 class="text-uppercase mb-2">SMA NEGERI INDONESIA</h5>
+                            <p class="mb-0 fs-8 text-muted">Alamat: Jl. Raya Pendidikan No. 1, Kota Bandung | Telp: (022) 12345678</p>
+                        </div>
+
+                        <!-- Screen View Header (Always visible) -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1" id="print-report-title">LAPORAN KEUANGAN</h5>
+                                <span class="text-muted fs-8" id="print-report-dates">Periode</span>
+                            </div>
+                        </div>
+
+                        <!-- Report Table -->
+                        <div class="table-responsive border mb-4">
+                            <table class="table align-middle table-striped custom-table mb-0">
+                                <thead id="report-table-head">
+                                    <!-- Populated dynamically -->
+                                </thead>
+                                <tbody id="report-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary footer -->
+                        <div class="d-flex justify-content-end p-2 border-top">
+                            <div class="text-end">
+                                <span class="fs-8 text-muted d-block">Total Nominal Akumulasi:</span>
+                                <h4 class="fw-bold text-primary mb-0" id="report-total-sum">Rp 0</h4>
+                            </div>
+                        </div>
+
+                        <!-- Print Signature (Shown in Print only) -->
+                        <div class="print-header mt-5 pt-3">
+                            <div class="row">
+                                <div class="col-8"></div>
+                                <div class="col-4 text-center">
+                                    <p class="mb-5">Bandung, <span id="print-current-date">29 Juni 2026</span><br>Petugas Koperasi,</p>
+                                    <br><br>
+                                    <p class="fw-bold mb-0">______________________</p>
+                                    <span class="fs-8 text-muted">Administrator</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================================== GLOBAL MODALS ==================================== -->
+
+    <!-- Add/Edit Anggota Modal -->
+    <div class="modal fade" id="anggota-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="anggota-modal-title">Tambah Anggota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="anggota-form-el">
+                    <input type="hidden" id="anggota-form-id">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="anggota-form-name">Nama Guru Lengkap *</label>
+                            <input type="text" class="form-control" id="anggota-form-name" placeholder="Contoh: Budi, S.Pd." required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label" for="anggota-form-nip">NIP Guru</label>
+                                <input type="text" class="form-control" id="anggota-form-nip" placeholder="18 digit angka NIP">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="anggota-form-phone">Nomor HP</label>
+                                <input type="text" class="form-control" id="anggota-form-phone" placeholder="08xxxxxxxx">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="anggota-form-email">Alamat Email *</label>
+                            <input type="email" class="form-control" id="anggota-form-email" placeholder="nama@sekolah.sch.id" required>
+                        </div>
+                        <div class="mb-3" id="anggota-form-password-wrapper">
+                            <label class="form-label" for="anggota-form-password">Password Login *</label>
+                            <input type="password" class="form-control" id="anggota-form-password" placeholder="Minimal 6 karakter">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="anggota-form-address">Alamat Rumah</label>
+                            <textarea class="form-control" id="anggota-form-address" rows="2" placeholder="Alamat tinggal lengkap..."></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label" for="anggota-form-status">Status Keanggotaan</label>
+                            <select class="form-select" id="anggota-form-status">
+                                <option value="aktif">Aktif</option>
+                                <option value="nonaktif">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body fs-7" id="confirm-delete-body">
+                    Apakah Anda yakin ingin menghapus data ini?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="executeDeleteAnggota()">Ya, Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Simpanan Transaction Modal -->
+    <div class="modal fade" id="simpanan-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Catat Transaksi Simpanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="simpanan-form-el">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="simpanan-form-user">Anggota Guru *</label>
+                            <select class="form-select" id="simpanan-form-user" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label" for="simpanan-form-type">Tipe Simpanan *</label>
+                                <select class="form-select" id="simpanan-form-type" required>
+                                    <option value="" disabled selected>Pilih...</option>
+                                    <option value="pokok">Pokok (Awal)</option>
+                                    <option value="wajib">Wajib (Rutin)</option>
+                                    <option value="sukarela">Sukarela</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="simpanan-form-amount">Nominal Setoran (Rp) *</label>
+                                <input type="number" class="form-control" id="simpanan-form-amount" placeholder="Contoh: 100000" min="10000" step="5000" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="simpanan-form-date">Tanggal Transaksi *</label>
+                            <input type="date" class="form-control" id="simpanan-form-date" required>
+                        </div>
+                        <div>
+                            <label class="form-label" for="simpanan-form-desc">Keterangan / Catatan</label>
+                            <textarea class="form-control" id="simpanan-form-desc" rows="2" placeholder="Catatan transaksi tambahan..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Processing / Approval Modal -->
+    <div class="modal fade" id="approval-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Proses Pengajuan Pinjaman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Application Details -->
+                    <div class="card p-3 bg-light border-0 mb-3 fs-8">
+                        <div class="row mb-1">
+                            <div class="col-4 text-muted">Guru Pengaju:</div>
+                            <div class="col-8 fw-semibold" id="approval-member-name">-</div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-4 text-muted">NIP:</div>
+                            <div class="col-8" id="approval-member-nip">-</div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-4 text-muted">Nominal Diminta:</div>
+                            <div class="col-8 fw-bold text-primary" id="approval-loan-amount">Rp 0</div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-4 text-muted">Tenor Diminta:</div>
+                            <div class="col-8" id="approval-loan-duration">0 Bulan</div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col-4 text-muted">Alasan Pinjaman:</div>
+                            <div class="col-8 text-muted" id="approval-loan-reason">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Processing inputs -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label" for="approval-interest">Bunga Bulanan (%)</label>
+                            <input type="number" class="form-control" id="approval-interest" value="1.5" min="0" max="100" step="0.1">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" for="approval-due-date">Tanggal Jatuh Tempo Cicilan 1</label>
+                            <input type="date" class="form-control" id="approval-due-date">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label" for="approval-note">Catatan / Alasan Keputusan</label>
+                        <textarea class="form-control" id="approval-note" rows="2" placeholder="Catatan tambahan untuk persetujuan atau penolakan..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger" onclick="processApproval('tolak')">
+                        <i class="fas fa-times-circle me-1"></i> Tolak Pengajuan
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-success" onclick="processApproval('setuju')">
+                            <i class="fas fa-check-circle me-1"></i> Setujui & Cairkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Profile Modal -->
+    <div class="modal fade" id="edit-profile-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Profil Guru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-profile-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="edit-profile-name">Nama Lengkap *</label>
+                            <input type="text" class="form-control" id="edit-profile-name" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label" for="edit-profile-nip">NIP Guru</label>
+                                <input type="text" class="form-control" id="edit-profile-nip">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="edit-profile-phone">Nomor HP</label>
+                                <input type="text" class="form-control" id="edit-profile-phone">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="edit-profile-email">Alamat Email *</label>
+                            <input type="email" class="form-control" id="edit-profile-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="edit-profile-password">Ubah Password (Isi jika ingin diubah)</label>
+                            <input type="password" class="form-control" id="edit-profile-password" placeholder="Masukkan password baru">
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-profile-address">Alamat Rumah</label>
+                            <textarea class="form-control" id="edit-profile-address" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ==================================== SCRIPTS ==================================== -->
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js for Statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Application Brain -->
+    <script src="app.js"></script>
+</body>
+</html>
